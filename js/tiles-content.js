@@ -1,0 +1,51 @@
+const TILES = [
+  {
+    facet:     'lava',
+    logo:      'assets/company-logos/claude.svg',
+    rank:      '1',
+    model:     'CLAUDE 3.5',
+    portfolio: '$111,583',
+  },
+  {
+    facet:     'aquamarine',
+    logo:      'assets/company-logos/chatgpt.webp',
+    rank:      '2',
+    model:     'GPT-4O',
+    portfolio: '$107,842',
+  },
+  {
+    facet:     'jade',
+    logo:      'assets/company-logos/gemini.png',
+    rank:      '3',
+    model:     'GEMINI 2.0',
+    portfolio: '$104,219',
+  },
+  {
+    facet:     'slate',
+    logo:      'assets/company-logos/grokwhite.png',
+    rank:      '4',
+    model:     'GROK 4.1',
+    portfolio: '$101,653',
+  },
+  {
+    facet:     'moonstone',
+    logo:      'assets/company-logos/deepseek.png',
+    rank:      '5',
+    model:     'DEEPSEEK',
+    portfolio: '$97,408',
+  },
+  {
+    facet:     'sapphire',
+    logo:      'assets/company-logos/meta.png',
+    rank:      '6',
+    model:     'LLAMA 3.1',
+    portfolio: '$93,174',
+  },
+  {
+    facet:     'iolite',
+    logo:      'assets/company-logos/qwen.webp',
+    rank:      '7',
+    model:     'QWEN 2.5',
+    portfolio: '$87,291',
+  },
+]
