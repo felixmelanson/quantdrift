@@ -1,8 +1,53 @@
+const STARTING_AMOUNT = 100000
+
+let selectedTileIdx = null
+
+function buildRankRow() {
+  const row = document.getElementById('rank-row')
+  const labels = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th']
+
+  TILES.forEach((_tile, i) => {
+    const badge = document.createElement('div')
+    const rankNum = i + 1
+    badge.className = 'rank-badge ' + (rankNum <= 3 ? 'rank-' + rankNum : 'rank-other')
+    const span = document.createElement('span')
+    span.className = 'rank-text'
+    span.textContent = labels[i]
+    badge.appendChild(span)
+    row.appendChild(badge)
+  })
+}
+
+function selectTile(idx) {
+  selectedTileIdx = idx
+  document.querySelectorAll('.tile-wrap').forEach((el, i) => {
+    el.classList.toggle('dimmed', i !== idx)
+    el.classList.toggle('selected', i === idx)
+  })
+  // switch left panel to portfolio tab
+  if (typeof showPortfolio === 'function') showPortfolio(TILES[idx])
+}
+
+function deselectTile() {
+  selectedTileIdx = null
+  document.querySelectorAll('.tile-wrap').forEach(el => {
+    el.classList.remove('dimmed', 'selected')
+  })
+  if (typeof showActivity === 'function') showActivity()
+}
+
 function buildGrid() {
   const grid = document.getElementById('tile-grid')
 
   TILES.forEach((tile, i) => {
     const f = FACETS[tile.facet]
+
+    const rawValue = parseFloat(tile.portfolio.replace(/[$,]/g, ''))
+    const delta = rawValue - STARTING_AMOUNT
+    const pct = (delta / STARTING_AMOUNT * 100).toFixed(1)
+    const deltaAbbrev = (delta >= 0 ? '+' : '') + pct + '%'
+    const triangleSymbol = delta >= 0 ? '▲' : '▼'
+    const deltaColor = 'rgba(255,255,255,0.32)'
 
     const wrap = document.createElement('div')
     wrap.className = 'tile-wrap'
@@ -44,14 +89,25 @@ function buildGrid() {
       </div>
 
       <div style="position:relative;z-index:20;text-align:center;width:100%;padding-bottom:.4rem">
-        <span style="display:block;font-size:clamp(9px,1.1vw,11px);font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.65);line-height:1.4">#${tile.rank}&nbsp;&nbsp;${tile.model}</span>
-        <span style="display:block;font-size:clamp(7px,0.85vw,9px);font-weight:800;letter-spacing:0.12em;color:rgba(255,255,255,0.28);margin-top:2px">${tile.portfolio}</span>
+        <span style="display:block;font-size:clamp(9px,1.1vw,11px);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.65);line-height:1.4">${tile.model}</span>
+        <div style="display:flex;align-items:center;justify-content:center;gap:0.35rem;margin-top:3px">
+          <span style="font-size:clamp(7px,0.85vw,9px);font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.32);font-variant-numeric:tabular-nums">${tile.portfolio}</span>
+          <span style="font-size:clamp(7px,0.82vw,9px);font-weight:700;color:${deltaColor};letter-spacing:0.03em">${triangleSymbol} ${deltaAbbrev}</span>
+        </div>
       </div>
     `
 
     wrap.appendChild(inner)
+    wrap.addEventListener('click', () => {
+      if (selectedTileIdx === i) {
+        deselectTile()
+      } else {
+        selectTile(i)
+      }
+    })
     grid.appendChild(wrap)
   })
 }
 
+buildRankRow()
 buildGrid()

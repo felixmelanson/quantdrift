@@ -5,48 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Stock Lab</title>
   <link rel="icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/loading.css" />
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-
-  <!-- hidden SVG filter definitions for liquid glass -->
-  <svg id="glass-defs" style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none">
-    <defs>
-      <!-- pill: stdev18 rect displacement map -->
-      <filter id="pill-glass" x="-10%" y="-10%" width="120%" height="120%">
-        <feImage id="pill-map-img" href="" x="0" y="0" width="1400" height="68" result="map" preserveAspectRatio="none"/>
-        <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur"/>
-        <feDisplacementMap in="blur" in2="map" scale="40" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-      <!-- circles: blur7 circle displacement map -->
-      <filter id="circle-glass" primitiveUnits="objectBoundingBox" x="-40%" y="-40%" width="190%" height="190%">
-        <feImage id="circle-map-img" href="" x="0" y="0" width="1" height="1" result="map"/>
-        <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" result="blur"/>
-        <feDisplacementMap in="blur" in2="map" scale="1" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-    </defs>
-  </svg>
-
-  <script>
-    // detect safari — SVG backdrop-filter doesn't work there, use blur fallback
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
-    if (isSafari) document.body.classList.add('safari')
-
-    if (!isSafari) {
-      // pill map — stdev18 rounded rect on neutral grey bg
-      const pw = 1400, ph = 68, pr = 20
-      const pp = `M${pr},0 h${pw-2*pr} a${pr},${pr} 0 0 1 ${pr},${pr} v${ph-2*pr} a${pr},${pr} 0 0 1 -${pr},${pr} h-${pw-2*pr} a${pr},${pr} 0 0 1 -${pr},-${pr} v-${ph-2*pr} a${pr},${pr} 0 0 1 ${pr},-${pr} z`
-      // R channel: 0=left, 128=neutral, 255=right — creates outward lens refraction
-      const pillSvg = `<svg width="${pw}" height="${ph}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="b"><feGaussianBlur stdDeviation="18"/></filter><linearGradient id="xg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="rgb(0,128,128)"/><stop offset="50%" stop-color="rgb(128,128,128)"/><stop offset="100%" stop-color="rgb(255,128,128)"/></linearGradient></defs><rect width="${pw}" height="${ph}" fill="rgb(128,128,128)"/><path d="${pp}" fill="url(#xg)" filter="url(#b)"/></svg>`
-      document.getElementById('pill-map-img').setAttribute('href', `data:image/svg+xml,${encodeURIComponent(pillSvg)}`)
-
-      // circle map — blur7, same as Section4 in personal-portfolio
-      const cs = 300, cr = cs / 2
-      const circleSvg = `<svg width="${cs}" height="${cs}" xmlns="http://www.w3.org/2000/svg"><filter id="b"><feGaussianBlur stdDeviation="7"/></filter><linearGradient id="xg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="red"/><stop offset="100%" stop-color="red"/></linearGradient><linearGradient id="yg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="blue" stop-opacity="1"/><stop offset="100%" stop-color="blue" stop-opacity="0"/></linearGradient><rect width="${cs}" height="${cs}" fill="#000"/><rect width="${cs}" height="${cs}" fill="url(#xg)"/><rect width="${cs}" height="${cs}" fill="url(#yg)" style="mix-blend-mode:screen"/><circle cx="${cr}" cy="${cr}" r="${cr+2}" fill="rgba(153,153,153,1)" filter="url(#b)"/></svg>`
-      document.getElementById('circle-map-img').setAttribute('href', `data:image/svg+xml,${encodeURIComponent(circleSvg)}`)
-    }
-  </script>
 
   <div id="loading-screen">
     <div class="load-wrap">
@@ -86,115 +51,78 @@
     </div>
   </div>
 
+  <!-- Fixed GitHub button — top right -->
+  <a href="https://github.com" id="github-btn" target="_blank" rel="noopener" title="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.929.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+    </svg>
+  </a>
+
   <div id="app" class="loading">
 
-    <div id="header">
-
-      <!-- main pill -->
-      <div class="header-pill">
-        <div class="tab-glow"></div>
-
-        <div class="pill-brand">
-          <button id="logo-btn">
-            <img src="assets/icon.png" alt="AI Stock Lab" />
-          </button>
-          <span class="pill-wordmark">AI STOCK LAB</span>
-        </div>
-
-        <div class="pill-divider"></div>
-
-        <nav class="pill-tabs">
-
-          <button class="tab-btn active" data-tab="leaderboard">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
-              <line x1="8" y1="18" x2="8" y2="10"/><line x1="12" y1="18" x2="12" y2="4"/><line x1="16" y1="18" x2="16" y2="13"/>
-            </svg>
-            Leaderboard
-          </button>
-
-          <button class="tab-btn" data-tab="valuation">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 17 9 11 13 15 21 7"/><polyline points="17 7 21 7 21 11"/>
-            </svg>
-            Valuation
-          </button>
-
-          <button class="tab-btn" data-tab="portfolios">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="7" width="20" height="14" rx="2"/>
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-            </svg>
-            Portfolios
-          </button>
-
-          <button class="tab-btn" data-tab="feed">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
-              <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/>
-              <circle cx="5" cy="19" r="1" fill="currentColor" stroke="none"/>
-            </svg>
-            Feed
-          </button>
-
-          <button class="tab-btn" data-tab="charts">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-            </svg>
-            Charts
-          </button>
-
-          <button class="tab-btn" data-tab="about">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            About
-          </button>
-
-        </nav>
-      </div>
-
-      <!-- 3 glass circles -->
-      <div class="header-circles">
-
-        <a href="mailto:" class="glass-circle" title="Gmail">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-          </svg>
-        </a>
-
-        <a href="https://linkedin.com" class="glass-circle" target="_blank" rel="noopener" title="LinkedIn">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/>
-            <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
-          </svg>
-        </a>
-
-        <a href="https://github.com" class="glass-circle" target="_blank" rel="noopener" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.929.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
-
-      </div>
-
+    <div id="tile-area">
+      <div id="rank-row"></div>
+      <div id="tile-grid"></div>
     </div>
 
-    <div id="tile-grid"></div>
+    <!-- chart area wrapper -->
+    <div id="chart-area">
+      <div id="chart-section">
+
+        <!-- left panel: Activity / Portfolio -->
+        <div id="left-panel">
+          <div id="panel-tabs"></div>
+          <div id="activity-view">
+            <div id="feed-list"></div>
+          </div>
+          <div id="portfolio-view"></div>
+        </div>
+
+        <!-- graph panel: header overlay + canvas + endpoint circles + tooltip -->
+        <div id="graph-panel">
+          <div id="graph-header">
+            <div class="chart-title">
+              <img src="assets/icon.png" alt="AI Stock Lab" />
+              <span class="brand-wordmark">AI STOCK LAB</span>
+            </div>
+            <div class="chart-actions">
+              <span class="filter-label">FILTER</span>
+              <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+                <line x1="11" y1="18" x2="13" y2="18"/>
+              </svg>
+            </div>
+          </div>
+          <canvas id="portfolio-chart"></canvas>
+          <div id="endpoint-circles"></div>
+          <div id="chart-guideline"></div>
+          <div id="chart-tooltip"></div>
+        </div>
+
+      </div>
+    </div>
 
   </div>
 
   <script src="js/tiles-content.js"></script>
   <script src="js/facets.js"></script>
-  <script src="js/header.js"></script>
   <script src="js/tiles.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/feed.js"></script>
 
   <script>
     window.addEventListener('load', () => {
       setTimeout(() => {
         document.getElementById('loading-screen').classList.add('fade-out')
-        document.getElementById('app').classList.remove('loading')
-        setTimeout(() => document.getElementById('loading-screen').remove(), 1200)
+        const app = document.getElementById('app')
+        app.classList.remove('loading')
+        buildFeed()
+        setTimeout(() => {
+          document.getElementById('loading-screen').remove()
+          buildChart()
+        }, 1200)
       }, 2500)
     })
   </script>
