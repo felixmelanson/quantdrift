@@ -1,0 +1,69 @@
+/* loading screen — straight port from loading-screen.tsx */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 1.2s ease;
+}
+#loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+.load-wrap {
+  position: relative;
+  width: min(800px, 100vw);
+  aspect-ratio: 16/10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.load-wrap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translateY(5px);
+}
+
+.trace-bg  { stroke: #121212; stroke-width: 2; fill: none; }
+.trace-fill {
+  stroke: #fff;
+  stroke-width: 2.2;
+  fill: none;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 12px rgba(255,255,255,.6)) drop-shadow(0 0 20px rgba(255,255,255,.4));
+  animation: fill-up 3s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes fill-up {
+  0%  { stroke-dashoffset: 500; opacity: 0; }
+  10% { opacity: 1; }
+  100%{ stroke-dashoffset: 0;   opacity: 1; }
+}
+
+#load-icon {
+  position: relative;
+  z-index: 10;
+  width: 11rem;
+  height: 11rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#load-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(.25) grayscale(.5);
+  animation: energize 1.5s ease-out forwards;
+  animation-delay: 1.3s;
+}
+@keyframes energize {
+  0%  { filter: brightness(.25) grayscale(.5); }
+  100%{ filter: brightness(1)   grayscale(0);  }
+}
