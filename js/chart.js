@@ -1,12 +1,12 @@
 // ── model definitions ──────────────────────────────────────────────────────
 const CHART_MODELS = [
-  { key: 'claude',   label: 'Claude 3.5', logo: 'assets/company-logos/claude.svg',    neon: 'hsl(22,100%,58%)',   final: 111583, seed: 1, facet: 'lava'      },
-  { key: 'gpt4o',    label: 'GPT-4O',     logo: 'assets/company-logos/chatgpt.webp',  neon: 'hsl(174,100%,55%)',  final: 107842, seed: 2, facet: 'aquamarine' },
-  { key: 'gemini',   label: 'Gemini 2.0', logo: 'assets/company-logos/gemini.png',    neon: 'hsl(142,100%,62%)',  final: 104219, seed: 3, facet: 'jade'       },
-  { key: 'grok',     label: 'Grok 4.1',   logo: 'assets/company-logos/grokwhite.png', neon: 'hsl(220,12%,70%)',   final: 101653, seed: 4, facet: 'slate'      },
-  { key: 'deepseek', label: 'DeepSeek R1',   logo: 'assets/company-logos/deepseek.png',  neon: 'hsl(210,100%,72%)',  final:  97408, seed: 5, facet: 'moonstone'  },
-  { key: 'llama',    label: 'Llama 3.1',  logo: 'assets/company-logos/meta.png',      neon: 'hsl(215,85%,48%)',   final:  93174, seed: 6, facet: 'sapphire'   },
-  { key: 'qwen',     label: 'Qwen 2.5',   logo: 'assets/company-logos/qwen.webp',     neon: 'hsl(268,75%,50%)',   final:  87291, seed: 7, facet: 'iolite'     },
+  { key: 'claude',   label: 'Claude 4.6',     logo: 'assets/company-logos/claude.svg',    neon: 'hsl(22,100%,58%)',  final: 111583, seed: 1, facet: 'lava'      },
+  { key: 'gpt4o',    label: 'GPT-5.4',        logo: 'assets/company-logos/chatgpt.webp',  neon: 'hsl(174,100%,55%)', final: 107842, seed: 2, facet: 'aquamarine' },
+  { key: 'gemini',   label: 'Gemini 3.1',     logo: 'assets/company-logos/gemini.png',    neon: 'hsl(142,100%,62%)', final: 104219, seed: 3, facet: 'jade'       },
+  { key: 'grok',     label: 'xAI Grok 4',     logo: 'assets/company-logos/grokwhite.png', neon: 'hsl(220,12%,70%)',  final: 101653, seed: 4, facet: 'slate'      },
+  { key: 'deepseek', label: 'DeepSeek-V3.2',  logo: 'assets/company-logos/deepseek.png',  neon: 'hsl(210,100%,72%)', final:  97408, seed: 5, facet: 'moonstone'  },
+  { key: 'llama',    label: 'Llama-4-Mav.',   logo: 'assets/company-logos/meta.png',      neon: 'hsl(215,85%,48%)',  final:  93174, seed: 6, facet: 'sapphire'   },
+  { key: 'qwen',     label: 'Qwen3-32B',      logo: 'assets/company-logos/qwen.webp',     neon: 'hsl(268,75%,50%)',  final:  87291, seed: 7, facet: 'iolite'     },
 ]
 const SP500    = { key: 'sp500', label: 'S&P 500', color: 'rgba(200,30,35,0.9)', glowColor: 'rgba(190,18,60,0.8)', facet: 'garnet', final: 102580, seed: 8 }
 const N_POINTS = 60
@@ -37,13 +37,7 @@ function generateData(finalValue, seed) {
     raw[i] = trend + (rand() - 0.5) * 2 * vol
   }
   raw[n - 1] = finalValue
-  const data = raw.slice()
-  for (let i = 1; i < n - 1; i++) {
-    data[i] = Math.round((raw[i - 1] + raw[i] * 2 + raw[i + 1]) / 4)
-  }
-  data[0] = start
-  data[n - 1] = finalValue
-  return data
+  return raw
 }
 
 // ── trading dates ──────────────────────────────────────────────────────────
@@ -127,6 +121,7 @@ function buildChart() {
   // ── VIEW STATE ────────────────────────────────────────────────────────────
   let xStart   = 0,    xEnd   = N_POINTS - 1
   let yMinView = yMin, yMaxView = yMax
+  let focusedIdx = null  // index of highlighted model line (null = all)
 
   function xOf(i) { return MARGIN.left + ((i - xStart) / (xEnd - xStart)) * cW }
   function yOf(v) { return MARGIN.top  + (1 - (v - yMinView) / (yMaxView - yMinView)) * cH }
@@ -223,19 +218,21 @@ function buildChart() {
     ctx.globalAlpha = 1
 
     // model lines — neon glow (outer + sharp pass)
-    liveLines.forEach(line => {
+    liveLines.forEach((line, li) => {
+      const isFocused  = focusedIdx !== null
+      const isSelected = isFocused && li === focusedIdx
       ctx.strokeStyle = line.neon
       ctx.lineWidth   = 2
       ctx.lineCap     = 'round'
       ctx.lineJoin    = 'round'
       ctx.shadowColor = line.neon
       ctx.shadowBlur  = 14
-      ctx.globalAlpha = 0.5
+      ctx.globalAlpha = isFocused ? (isSelected ? 0.5 : 0.07) : 0.5
       ctx.beginPath()
       line.pts.forEach((p, j) => j === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y))
       ctx.stroke()
       ctx.shadowBlur  = 6
-      ctx.globalAlpha = 1
+      ctx.globalAlpha = isFocused ? (isSelected ? 1 : 0.12) : 1
       ctx.beginPath()
       line.pts.forEach((p, j) => j === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y))
       ctx.stroke()
@@ -250,7 +247,7 @@ function buildChart() {
   function buildEndpoints() {
     const finalX = xOf(N_POINTS - 1)
     const inFrame = finalX >= MARGIN.left && finalX <= W - MARGIN.right
-    buildEndpointCircles(liveLines, liveSpLine, xOf, yOf, inFrame)
+    buildEndpointCircles(liveLines, liveSpLine, xOf, yOf, inFrame, focusedIdx)
   }
 
   function renderStatic() {
@@ -276,8 +273,7 @@ function buildChart() {
     ctx.rect(MARGIN.left, MARGIN.top, cW, cH)
     ctx.clip()
 
-    // S&P animation — solid ruby red with glow 
-    // TODO: make it look more like other lines lol
+    // S&P animation — solid ruby red with glow
     const spProgress = Math.min(1, Math.max(0, elapsed) / ANIM_DUR)
     ctx.strokeStyle = SP500.color
     ctx.lineWidth   = 1.5
@@ -331,6 +327,7 @@ function buildChart() {
     const hline      = document.getElementById('chart-hguideline')
     const crosshair  = document.getElementById('chart-crosshair')
     const tooltip    = document.getElementById('chart-tooltip')
+    const ylabel     = document.getElementById('chart-ylabel')
 
     function show(e) {
       if (dragging) return
@@ -351,6 +348,12 @@ function buildChart() {
       crosshair.style.left    = snapX + 'px'
       crosshair.style.top     = my + 'px'
       crosshair.style.display = 'block'
+
+      // Y-axis value label on left edge
+      const hoverVal = yMaxView - ((my - MARGIN.top) / cH) * (yMaxView - yMinView)
+      ylabel.textContent  = fmtDollar(hoverVal)
+      ylabel.style.top    = my + 'px'
+      ylabel.style.display = 'block'
 
       let html = `<div class="tooltip-date">${fmtDate(dates[idx])}</div>`
       liveLines.forEach(line => {
@@ -385,6 +388,7 @@ function buildChart() {
       hline.style.display     = 'none'
       crosshair.style.display = 'none'
       tooltip.style.display   = 'none'
+      ylabel.style.display    = 'none'
     }
 
     canvas.addEventListener('mousemove', show)
@@ -407,19 +411,27 @@ function buildChart() {
       const zoomIn = e.deltaY > 0
       const factor = zoomIn ? 0.88 : 1.12
 
-      // Y zoom — keep value under cursor fixed
+      // Y zoom — keep value under cursor fixed; snap to natural on full zoom-out
       const fracY     = (my - MARGIN.top) / cH
       const cursorVal = yMaxView - fracY * (yMaxView - yMinView)
       const newYRange = Math.max(naturalYRange * 0.06, Math.min(naturalYRange * 4, (yMaxView - yMinView) * factor))
-      yMaxView = cursorVal + fracY * newYRange
-      yMinView = cursorVal - (1 - fracY) * newYRange
+      if (!zoomIn && newYRange >= naturalYRange) {
+        yMinView = yMin; yMaxView = yMax
+      } else {
+        yMaxView = cursorVal + fracY * newYRange
+        yMinView = cursorVal - (1 - fracY) * newYRange
+      }
 
-      // X zoom — keep index under cursor fixed
+      // X zoom — keep index under cursor fixed; snap to natural on full zoom-out
       const fracX     = (mx - MARGIN.left) / cW
       const cursorIdx = xStart + fracX * (xEnd - xStart)
       const newXRange = Math.max(4, Math.min(N_POINTS - 1, (xEnd - xStart) * factor))
-      xStart = Math.max(0, cursorIdx - fracX * newXRange)
-      xEnd   = Math.min(N_POINTS - 1, xStart + newXRange)
+      if (!zoomIn && newXRange >= N_POINTS - 1) {
+        xStart = 0; xEnd = N_POINTS - 1
+      } else {
+        xStart = Math.max(0, cursorIdx - fracX * newXRange)
+        xEnd   = Math.min(N_POINTS - 1, xStart + newXRange)
+      }
 
       renderStatic()
     }, { passive: false })
@@ -478,10 +490,72 @@ function buildChart() {
   }
 
   requestAnimationFrame(frame)
+
+  // ── tile-linked line focus ────────────────────────────────────────────────
+  let focusAnimId = null
+
+  window.focusChartLine = function(idx) {
+    if (!animDone) return
+    if (focusAnimId) { cancelAnimationFrame(focusAnimId); focusAnimId = null }
+    focusedIdx = idx
+
+    // Draw all dimmed lines statically first
+    drawLines()
+
+    // Animate the focused line over the dimmed static render
+    const focusLine = liveLines[idx]
+    if (!focusLine) return
+
+    const FOCUS_DUR = 900
+    let focusStart = null
+
+    function focusFrame(ts) {
+      if (!focusStart) focusStart = ts
+      const progress = Math.min(1, (ts - focusStart) / FOCUS_DUR)
+
+      // Redraw dimmed base (fast)
+      drawLines()
+
+      // Draw focused line at current progress on top
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(MARGIN.left, MARGIN.top, cW, cH)
+      ctx.clip()
+      ctx.strokeStyle = focusLine.neon
+      ctx.lineWidth   = 2
+      ctx.lineCap     = 'round'
+      ctx.lineJoin    = 'round'
+      ctx.shadowColor = focusLine.neon
+      ctx.shadowBlur  = 14
+      ctx.globalAlpha = 0.5
+      drawAtProgress(ctx, focusLine.pts, focusLine.lens, focusLine.totalLen, progress)
+      ctx.shadowBlur  = 6
+      ctx.globalAlpha = 1
+      drawAtProgress(ctx, focusLine.pts, focusLine.lens, focusLine.totalLen, progress)
+      ctx.shadowBlur  = 0
+      ctx.globalAlpha = 1
+      ctx.restore()
+
+      if (progress < 1) {
+        focusAnimId = requestAnimationFrame(focusFrame)
+      } else {
+        focusAnimId = null
+        buildEndpoints()
+      }
+    }
+
+    focusAnimId = requestAnimationFrame(focusFrame)
+  }
+
+  window.unfocusChartLine = function() {
+    if (focusAnimId) { cancelAnimationFrame(focusAnimId); focusAnimId = null }
+    focusedIdx = null
+    renderStatic()
+  }
 }
 
 // ── endpoint circles ──────────────────────────────────────────────────────────
-function buildEndpointCircles(lines, spLine, xOfFn, yOfFn, inFrame) {
+function buildEndpointCircles(lines, spLine, xOfFn, yOfFn, inFrame, focusedIdx = null) {
   const container = document.getElementById('endpoint-circles')
   container.innerHTML = ''
   if (!inFrame) return
@@ -492,6 +566,8 @@ function buildEndpointCircles(lines, spLine, xOfFn, yOfFn, inFrame) {
   lines.forEach((line, idx) => {
     const f      = FACETS[line.facet]
     const finalY = yOfFn(line.final)
+    const dimmed = focusedIdx !== null && idx !== focusedIdx
+    if (dimmed) return
 
     const wrap = document.createElement('div')
     wrap.className = 'endpoint-wrap'

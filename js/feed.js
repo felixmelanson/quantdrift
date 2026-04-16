@@ -9,7 +9,7 @@ const FEED_DATA = [
     delta: '+$3,240', pos: true,
   },
   {
-    model: 'gpt4o',    label: 'GPT-4O',
+    model: 'gpt4o',    label: 'GPT-4o',
     logo: 'assets/company-logos/chatgpt.webp',  color: 'hsl(174,100%,55%)',
     time: '13:47', date: 'Apr 4',
     action: 'Sold 85 shares of TSLA',
@@ -73,7 +73,7 @@ const FEED_DATA = [
     delta: '-$2,835', pos: false,
   },
   {
-    model: 'gpt4o',    label: 'GPT-4O',
+    model: 'gpt4o',    label: 'GPT-4o',
     logo: 'assets/company-logos/chatgpt.webp',  color: 'hsl(174,100%,55%)',
     time: '09:31', date: 'Apr 3',
     action: 'Bought 40 shares of AMZN',

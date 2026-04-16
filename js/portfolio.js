@@ -158,13 +158,13 @@ const PORTFOLIO_DATA = {
 
 // ── model key mapping ────────────────────────────────────────────────────────
 const MODEL_KEY_MAP = {
-  'CLAUDE 3.5': 'claude',
-  'GPT-4O':     'gpt4o',
-  'GEMINI 2.0': 'gemini',
-  'GROK 4.1':   'grok',
-  'DEEPSEEK R1':   'deepseek',
-  'LLAMA 3.1':  'llama',
-  'QWEN 2.5':   'qwen',
+  'CLAUDE 3.5':   'claude',
+  'CHATGPT-4o':   'gpt4o',
+  'GEMINI 3.1':   'gemini',
+  'xAI GROK-3':   'grok',
+  'DEEPSEEK V3':  'deepseek',
+  'LLAMA-4-MAV.': 'llama',
+  'QWEN 3-32B':   'qwen',
 }
 
 // ── ticker color helper ─────────────────────────────────────────────────────

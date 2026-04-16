@@ -3,8 +3,9 @@
 html, body {
   background: #000;
   color: #fff;
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: 'Saira Stencil', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 #app {
@@ -15,84 +16,96 @@ html, body {
 
 /* ── liquid glass pills ── */
 #brand-pill,
-#github-pill {
+#left-pill,
+#right-pill {
   position: fixed;
   z-index: 9999;
   display: flex;
   align-items: center;
   gap: 0;
   padding: 0 1.5rem;
-  height: 56px;
+  height: 58px;
   border-radius: 14px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow:
     0 8px 32px rgba(0,0,0,0.5),
     inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -1px 0 rgba(0,0,0,0.3);
-  backdrop-filter: url(#pill-glass);
-  -webkit-backdrop-filter: url(#pill-glass);
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 16px 48px rgba(0,0,0,0.4);
+  backdrop-filter: url(#pill-glass) blur(3px);
+  -webkit-backdrop-filter: url(#pill-glass) blur(10px);
   text-decoration: none;
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,0.9);
   transition: color 0.2s, background 0.2s, transform 0.18s;
-  cursor: default;
+  filter: blur(0.4px);
 }
 body.safari #brand-pill,
-body.safari #github-pill {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+body.safari #left-pill,
+body.safari #right-pill {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
-#brand-pill { 
-  top: 1.75rem; 
+#brand-pill {
+  top: 1.3rem;
   left: 50%;
   transform: translateX(-50%);
-  box-shadow:
-    0 8px 32px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -1px 0 rgba(0,0,0,0.3),
-    0 16px 48px rgba(0,0,0,0.4);
-  filter: blur(0.3px);
+  cursor: default;
+  height: 66px;
+  padding: 0 1.75rem;
 }
-#github-pill {
-  bottom: 1.75rem;
+#brand-pill .pill-wordmark {
+  font-size: 18px;
+  letter-spacing: 0.18em;
+}
+#brand-pill .pill-logo {
+  width: 50px;
+  height: 50px;
+}
+#left-pill {
+  top: 1.3rem;
+  left: 1.75rem;
+  cursor: default;
+  gap: 0.85rem;
+}
+#right-pill {
+  top: 1.3rem;
   right: 1.75rem;
   cursor: pointer;
-  width: 56px;
-  height: 56px;
-  padding: 0;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow:
-    0 8px 32px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -1px 0 rgba(0,0,0,0.3),
-    0 16px 48px rgba(0,0,0,0.4);
-  filter: blur(0.3px);
+  gap: 0.85rem;
 }
-#github-pill:hover {
+#right-pill:hover,
+#left-pill:hover {
   color: rgba(255,255,255,0.95);
   background: rgba(255,255,255,0.1);
   transform: translateY(-1px);
+}
+.pill-info-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  opacity: 0.75;
+  stroke-width: 1.75;
 }
 .pill-logo {
   width: 40px;
   height: 40px;
   object-fit: contain;
-  opacity: 0.7;
+  opacity: 1;
   flex-shrink: 0;
 }
 .pill-wordmark {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   flex: 1;
   min-width: 0;
+  text-shadow: 0 1px 14px rgba(255,255,255,0.28);
 }
 .pill-wordmark.left {
   margin-right: 1rem;
@@ -119,9 +132,7 @@ body.safari #github-pill {
 
 /* ── tile area ── */
 #tile-area {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 5.5rem 1.75rem 0;
+  padding: 6.5rem 1.75rem 0;
   position: relative;
   z-index: 60;
 }
@@ -140,8 +151,7 @@ body.safari #github-pill {
 
 /* ── chart area ── */
 #chart-area {
-  max-width: 1400px;
-  margin: 1.75rem auto 0;
+  margin: 1.75rem 0 0;
   padding: 0 1.75rem;
 }
 
@@ -162,12 +172,12 @@ body.safari #github-pill {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 11px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
   white-space: nowrap;
 }
 .chart-actions {
@@ -177,7 +187,7 @@ body.safari #github-pill {
   opacity: 0.3;
 }
 .filter-label {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -200,6 +210,7 @@ body.safari #github-pill {
 /* ── left panel ── */
 #left-panel {
   flex: 3;
+  min-height: 0;
   border-radius: 20px;
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.06);
@@ -220,7 +231,7 @@ body.safari #github-pill {
   background: none;
   border: none;
   padding: 13px 0;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -644,6 +655,7 @@ body.safari #github-pill {
 /* ── graph panel ── */
 #graph-panel {
   flex: 7;
+  min-height: 0;
   position: relative;
   border-radius: 20px;
   background: rgba(255,255,255,0.025);
@@ -762,8 +774,8 @@ body.safari #github-pill {
 /* + marker at crosshair intersection */
 #chart-crosshair {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
   display: none;
   z-index: 10;
@@ -837,11 +849,13 @@ body.safari #github-pill {
   color: rgba(255,255,255,0.88);
 }
 
-/* ── tile selection state ── */
+/* ── tile selection + reveal state ── */
 .tile-wrap {
-  transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+  transition: opacity 0.45s ease, transform 0.3s ease, filter 0.3s ease;
   cursor: pointer;
+  opacity: 0; /* hidden until .revealed */
 }
+.tile-wrap.revealed { opacity: 1; }
 .tile-wrap.dimmed {
   opacity: 0.32;
   transform: scale(0.965);
@@ -851,29 +865,94 @@ body.safari #github-pill {
   transform: scale(1);
 }
 
-/* ── about section ── */
-#about-section {
-  max-width: 1400px;
-  margin: 2rem auto 0;
-  padding: 0 1.75rem 8rem;
+/* ── stock ticker ── */
+#stock-ticker {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 88px;
+  z-index: 9997;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 14px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.20) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 1.75rem, black calc(100% - 1.75rem), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 1.75rem, black calc(100% - 1.75rem), transparent 100%);
+  opacity: 0;
+  transition: opacity 0.8s ease 0.3s;
 }
-.about-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.22);
-  text-align: center;
-  margin-bottom: 1.25rem;
+body.content-ready #stock-ticker { opacity: 1; }
+.ticker-track {
+  display: flex;
+  align-items: baseline;
+  gap: 2.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: ticker-scroll 60s linear infinite;
 }
-.about-placeholder {
-  width: 100%;
-  height: 220px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.018);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-style: dashed;
+.ticker-track-rev {
+  animation: ticker-scroll-rev 65s linear infinite;
 }
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes ticker-scroll-rev {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+.tick {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.42rem;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+.tick .sym {
+  color: rgba(255,255,255,0.72);
+}
+.tick .price {
+  color: rgba(255,255,255,0.38);
+}
+.tick .chg {
+  font-size: 13px;
+}
+.tick .chg.up   { color: #4ADE80; }
+.tick .chg.down { color: #F87171; }
+
+/* ── header pills: hide during loading ── */
+#brand-pill, #left-pill, #right-pill {
+  opacity: 0;
+  transition: opacity 0.8s ease 0.3s;
+}
+body.content-ready #brand-pill,
+body.content-ready #left-pill,
+body.content-ready #right-pill { opacity: 1; }
+
+/* ── chart Y-axis hover label ── */
+#chart-ylabel {
+  position: absolute;
+  left: 0;
+  width: 74px;
+  transform: translateY(-50%);
+  text-align: right;
+  font: 600 10px "Space Grotesk", system-ui, sans-serif;
+  color: rgba(255,255,255,0.82);
+  display: none;
+  pointer-events: none;
+  z-index: 20;
+  padding: 2px 7px 2px 4px;
+  background: rgba(10,10,22,0.72);
+  border-radius: 0 4px 4px 0;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ── chart canvas: hide cursor ── */
+#portfolio-chart { cursor: none; }
 
 /* ── responsive ── */
 @media (max-width: 1100px) {

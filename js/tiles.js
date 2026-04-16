@@ -13,7 +13,8 @@ function selectTile(idx) {
     el.classList.toggle('dimmed', i !== idx)
     el.classList.toggle('selected', i === idx)
   })
-  setGraphTitle(TILES[idx].model)
+  setGraphTitle('TOTAL ACCOUNT VALUE (' + TILES[idx].model + ')')
+  if (typeof window.focusChartLine === 'function') window.focusChartLine(idx)
   if (typeof showPortfolio === 'function') showPortfolio(TILES[idx])
 }
 
@@ -22,9 +23,13 @@ function deselectTile() {
   document.querySelectorAll('.tile-wrap').forEach(el => {
     el.classList.remove('dimmed', 'selected')
   })
-  setGraphTitle('EQUITY CURVES')
+  setGraphTitle('TOTAL ACCOUNT VALUE (ALL MODELS)')
+  if (typeof window.unfocusChartLine === 'function') window.unfocusChartLine()
   if (typeof showActivity === 'function') showActivity()
 }
+
+// ── tile font ─────────────────────────────────────────────────────────────
+const TILE_FONT = "'Space Grotesk', sans-serif"
 
 // ── rank helpers ──────────────────────────────────────────────────────────
 function ordinal(n) {
@@ -54,7 +59,7 @@ function buildGrid() {
     const deltaAbbrev = (delta >= 0 ? '+' : '') + pct + '%'
     const triangleSymbol = delta >= 0 ? '▲' : '▼'
     const deltaColor = 'rgba(255,255,255,0.32)'
-    const modelTextStyle = `display:block;font-size:clamp(11px,1.3vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.65);line-height:1.4;font-family:inherit`
+    const modelTextStyle = `display:block;font-size:clamp(11px,1.3vw,13px);font-weight:700;text-transform:none;letter-spacing:0.1em;color:rgba(255,255,255,0.65);line-height:1.4;font-family:${TILE_FONT}`
     const metricsTextStyle = `font-size:clamp(9px,1vw,11px);font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.32);font-variant-numeric:tabular-nums`
     const metricsDeltaStyle = `font-size:clamp(9px,1vw,11px);font-weight:700;color:${deltaColor};letter-spacing:0.03em`
 
@@ -80,7 +85,7 @@ function buildGrid() {
       padding: 1.25rem;
       background: linear-gradient(180deg, ${f.mid} 0%, ${f.base} 100%);
       box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8);
-      filter: drop-shadow(0 0 6px ${f.glow});
+      filter: drop-shadow(0 0 6px ${f.glow}) blur(0.3px);
     `
 
     inner.innerHTML = `
@@ -98,7 +103,7 @@ function buildGrid() {
       </div>
 
       <div style="position:relative;z-index:20;text-align:center;width:100%;padding-bottom:.4rem;margin-top:1rem">
-        <span style="${modelTextStyle}"><span style="color:rgba(255,255,255,0.32)">#${i + 1}</span> ${tile.model}</span>
+        <span style="${modelTextStyle}"><span style="color:rgba(255,255,255,0.65)">#${i + 1}</span> ${tile.model}</span>
       </div>
 
       <div style="position:relative;z-index:20;width:100%;padding:0.25rem 0;display:flex;flex-direction:column;align-items:center;gap:0.25rem">
