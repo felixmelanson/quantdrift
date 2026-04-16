@@ -112,19 +112,22 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
   const holdings = holdingRows ?? [];
   const heldTickers = holdings.map((h) => h.ticker);
 
-  // ── 3. Price data (last 2 calendar days for held tickers) ─────────────────
+  // ── 3. Price data from daily_prices (old schema, has real data) ───────────
   const latestClose: Record<string, number> = {};
   const dayChangeMap: Record<string, number> = {};
 
   if (heldTickers.length > 0) {
-    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10); // YYYY-MM-DD
+
     const { data: priceRows } = await supabase
-      .from("price_history")
-      .select("ticker, ts, close")
+      .from("daily_prices")
+      .select("ticker, date, close, change_pct")
       .in("ticker", heldTickers)
-      .gte("ts", twoDaysAgo)
+      .gte("date", twoDaysAgo)
       .order("ticker")
-      .order("ts", { ascending: false });
+      .order("date", { ascending: false });
 
     if (priceRows) {
       const byTicker: Record<string, typeof priceRows> = {};
@@ -133,26 +136,32 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
         byTicker[r.ticker].push(r);
       }
       for (const [ticker, rows] of Object.entries(byTicker)) {
-        latestClose[ticker] = rows[0].close; // desc order → first = latest
-        // Group by date, take most-recent close per day
-        const byDate: Record<string, number> = {};
-        for (const r of rows) {
-          const date = r.ts.slice(0, 10);
-          if (!(date in byDate)) byDate[date] = r.close;
-        }
-        const dates = Object.keys(byDate).sort().reverse();
-        if (dates.length >= 2) {
+        // desc order → first row = most recent day
+        latestClose[ticker] = rows[0].close;
+
+        // day change: use change_pct if available, else compute from two rows
+        if (rows[0].change_pct != null) {
+          dayChangeMap[ticker] = rows[0].change_pct;
+        } else if (rows.length >= 2) {
           dayChangeMap[ticker] =
-            ((byDate[dates[0]] - byDate[dates[1]]) / byDate[dates[1]]) * 100;
+            ((rows[0].close - rows[1].close) / rows[1].close) * 100;
         }
       }
     }
   }
 
-  // ── 4. Compute portfolio metrics ──────────────────────────────────────────
-  const totalCostBasis = holdings.reduce((s, h) => s + h.shares * h.avg_cost, 0);
-  const cash = 100_000 - totalCostBasis;
+  // ── 4. Cash from model_accounts (new schema) ──────────────────────────────
+  const { data: accountRow } = await supabase
+    .from("model_accounts")
+    .select("cash")
+    .eq("model_slug", model.slug)
+    .single();
 
+  // Fall back to cost-basis calculation if account row is missing
+  const totalCostBasis = holdings.reduce((s, h) => s + h.shares * h.avg_cost, 0);
+  const cash = accountRow?.cash ?? 100_000 - totalCostBasis;
+
+  // ── 5. Compute portfolio metrics ──────────────────────────────────────────
   const holdingDetails = holdings.map((h) => {
     const u = universeMap.get(h.ticker);
     const currentPrice = latestClose[h.ticker] ?? h.avg_cost;
@@ -215,15 +224,15 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
     }))
     .sort((a, b) => b.pct - a.pct);
 
-  // ── 5. Portfolio snapshots ─────────────────────────────────────────────────
+  // ── 6. Portfolio snapshots (new schema: model_slug + timestamp) ───────────
   const { data: snapshots } = await supabase
     .from("portfolio_snapshots")
-    .select("ts, total_value")
-    .eq("model_id", model.id)
-    .order("ts", { ascending: true });
+    .select("timestamp, total_value")
+    .eq("model_slug", model.slug)
+    .order("timestamp", { ascending: true });
 
   const snapshotHistory = (snapshots ?? []).map((s) => ({
-    timestamp: s.ts,
+    timestamp: s.timestamp,
     total_value: s.total_value,
   }));
 
@@ -231,8 +240,8 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
   let dailyPnl: number | null = null;
   if (snapshots && snapshots.length >= 2) {
     const today = new Date().toISOString().slice(0, 10);
-    const todaySnaps = snapshots.filter((s) => s.ts.slice(0, 10) === today);
-    const prevSnaps = snapshots.filter((s) => s.ts.slice(0, 10) < today);
+    const todaySnaps = snapshots.filter((s) => s.timestamp.slice(0, 10) === today);
+    const prevSnaps = snapshots.filter((s) => s.timestamp.slice(0, 10) < today);
     if (todaySnaps.length > 0 && prevSnaps.length > 0) {
       dailyPnl =
         todaySnaps[todaySnaps.length - 1].total_value -
@@ -245,7 +254,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
   if (snapshots && snapshots.length > 5) {
     const byDate: Record<string, number> = {};
     for (const s of snapshots) {
-      byDate[s.ts.slice(0, 10)] = s.total_value; // last write = EOD (ascending order)
+      byDate[s.timestamp.slice(0, 10)] = s.total_value;
     }
     const dailyValues = Object.values(byDate);
     if (dailyValues.length >= 3) {
@@ -261,7 +270,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
     }
   }
 
-  // ── 6. Trade log analysis (FIFO closed-trade P&L) ─────────────────────────
+  // ── 7. Trade log analysis (FIFO closed-trade P&L) ─────────────────────────
   const { data: trades } = await supabase
     .from("trade_log")
     .select("action, ticker, shares, price, timestamp")

@@ -1,6 +1,7 @@
 {
   "crons": [
-    { "path": "/api/cron/fetch-prices", "schedule": "0 9 * * 1-5" },
-    { "path": "/api/cron/execute-trades", "schedule": "0 10 * * 1-5" }
+    { "path": "/api/cron/fetch-prices", "schedule": "*/5 9-16 * * 1-5" },
+    { "path": "/api/cron/execute-trades-am", "schedule": "45 9 * * 1-5" },
+    { "path": "/api/cron/execute-trades-pm", "schedule": "45 15 * * 1-5" }
   ]
 }
